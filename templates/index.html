@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AquaGuard AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- Rain -->
+    <div class="rain"></div>
+
+    <!-- Main Container -->
+
+    <div class="main-container">
+
+        <!-- ================= HERO ================= -->
+
+        <section class="hero">
+
+            <h1>
+                🌊 AquaGuard AI
+            </h1>
+
+            <h2>
+
+                Intelligent Flood Prediction &
+                Early Warning System
+
+            </h2>
+
+            <p>
+
+                Machine Learning • XGBoost • Flask
+
+            </p>
+
+        </section>
+
+        <!-- ================= CARD ================= -->
+
+        <section class="prediction-card">
+
+            <h3>
+
+                Flood Risk Prediction
+
+            </h3>
+<div class="weather-card">
+
+    <button type="button" id="locationBtn">
+        📍 Get Current Weather
+    </button>
+
+    <div id="weatherInfo"></div>
+
+</div>
+
+<div class="map-container">
+
+    <h2>🗺 Current Location</h2>
+
+    <div id="map"></div>
+
+</div>
+    <form action="/predict" method="POST">
+               <div class="form-grid">
+
+                    <div class="input-group">
+
+                        <label>🌧 Rainfall (mm)</label>
+
+                        <input
+type="number"
+name="rainfall"
+placeholder="0 - 400 mm"
+min="0"
+max="400"
+step="0.1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>🌊 River Level (m)</label>
+
+                      <input
+type="number"
+name="river_level"
+placeholder="0 - 10 m"
+min="0"
+max="10"
+step="0.1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>💧 Humidity (%)</label>
+
+                        <input
+type="number"
+name="humidity"
+placeholder="0 - 100 %"
+min="0"
+max="100"
+step="0.1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>🌡 Temperature (°C)</label>
+
+                        <input
+type="number"
+name="temperature"
+placeholder="10 - 40 °C"
+min="10"
+max="40"
+step="0.1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>🌱 Soil Moisture (%)</label>
+
+                        <input
+type="number"
+name="soil_moisture"
+placeholder="0 - 100 %"
+min="0"
+max="100"
+step="0.1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>⛰ Elevation (m)</label>
+
+                        <input
+type="number"
+name="elevation"
+placeholder="0 - 1000 m"
+min="0"
+max="1000"
+step="1"
+required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>☑️ Drainage Capacity (%)</label>
+
+<input
+    type="number"
+    name="drainage"
+    placeholder="0 - 100"
+    min="0"
+    max="100"
+    required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>🏙️ Urbanization (%)</label>
+
+<input
+    type="number"
+    name="urbanization"
+    placeholder="0 - 100"
+    min="0"
+    max="100"
+    required>
+
+                    </div>
+
+                </div>
+
+                <button class="predict-btn">
+
+                    🔵 Predict Flood Risk
+
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- ================= FEATURES ================= -->
+
+        <section class="features">
+
+            <div class="feature">
+
+                🛡️
+
+                <h4>AI Powered</h4>
+
+                <p>Machine Learning Prediction</p>
+
+            </div>
+
+            <div class="feature">
+
+                🎯
+
+                <h4>High Accuracy</h4>
+
+                <p>XGBoost Model</p>
+
+            </div>
+
+            <div class="feature">
+
+                ⚡
+
+                <h4>Real-Time</h4>
+
+                <p>Instant Prediction</p>
+
+            </div>
+
+            <div class="feature">
+
+                🚨
+
+                <h4>Early Warning</h4>
+
+                <p>Flood Risk Alerts</p>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Ocean -->
+
+    <div class="ocean">
+
+        <div class="wave wave1"></div>
+
+        <div class="wave wave2"></div>
+
+    </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+let map = null;
+
+document.getElementById("locationBtn").addEventListener("click", function () {
+
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error);
+
+});
+
+function success(position){
+
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    // Remove previous map
+    if(map){
+        map.remove();
+    }
+
+    map = L.map("map").setView([lat, lon], 13);
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution: "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(map);
+
+    L.circleMarker([lat, lon],{
+        radius:8,
+        color:"red",
+        fillColor:"red",
+        fillOpacity:1
+    })
+    .addTo(map)
+    .bindPopup("📍 You are here")
+    .openPopup();
+
+    setTimeout(()=>{
+        map.invalidateSize();
+    },300);
+
+    // Fetch weather
+    fetch("/weather",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            lat:lat,
+            lon:lon
+        })
+
+    })
+
+    .then(response=>response.json())
+
+    .then(weather=>{
+
+        // Weather card
+        document.getElementById("weatherInfo").innerHTML=`
+
+        <div class="weather-grid">
+
+            <div class="weather-box">
+                <h4>📍 City</h4>
+                <p>${weather.city}</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>🌡 Temperature</h4>
+                <p>${weather.temperature} °C</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>💧 Humidity</h4>
+                <p>${weather.humidity}%</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>🌧 Rainfall</h4>
+                <p>${weather.rainfall} mm</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>💨 Wind Speed</h4>
+                <p>${weather.wind_speed} m/s</p>
+            </div>
+
+        </div>
+
+        `;
+
+        // Autofill
+        document.querySelector('input[name="temperature"]').value=weather.temperature;
+
+        document.querySelector('input[name="humidity"]').value=weather.humidity;
+
+        document.querySelector('input[name="rainfall"]').value=weather.rainfall;
+
+    })
+
+    .catch(err=>{
+
+        console.log(err);
+
+        alert("Unable to fetch weather.");
+
+    });
+
+}
+
+function error(err){
+
+    alert(err.message);
+
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prediction Result</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="main-container">
+
+    <div class="prediction-card">
+
+        <h1>🌊 AquaGuard AI</h1>
+
+        <h2>Flood Prediction Result</h2>
+
+        {% if "HIGH" in prediction %}
+
+        <div class="result-box danger">
+
+            ⚠ HIGH FLOOD RISK
+
+        </div>
+
+        <div class="recommendation">
+
+            <h3>Recommended Actions</h3>
+
+            <ul>
+
+                <li>🚨 Stay away from rivers and lakes.</li>
+
+                <li>📢 Follow local government alerts.</li>
+
+                <li>🎒 Prepare an emergency kit.</li>
+
+                <li>🏠 Move to higher ground if necessary.</li>
+
+            </ul>
+
+        </div>
+
+        {% else %}
+
+        <div class="result-box safe">
+
+            ✅ NO FLOOD RISK
+
+        </div>
+
+        <div class="recommendation">
+
+            <h3>Current Situation</h3>
+
+            <ul>
+
+                <li>🌤 Weather appears normal.</li>
+
+                <li>💧 Continue monitoring rainfall.</li>
+
+                <li>📊 System detects low flood probability.</li>
+
+            </ul>
+
+        </div>
+
+        {% endif %}
+
+{% if confidence %}
+
+<div class="recommendation">
+
+    <h3>🤖 AI Confidence</h3>
+
+    <h2>{{ confidence }}%</h2>
+
+</div>
+
+{% endif %}
+<div class="recommendation">
+
+    <h3>📊 Prediction Summary</h3>
+
+    <table class="summary-table">
+
+        <tr>
+            <td>🌧 Rainfall</td>
+            <td>{{ rainfall }} mm</td>
+        </tr>
+
+        <tr>
+            <td>🌊 River Level</td>
+            <td>{{ river_level }} m</td>
+        </tr>
+
+        <tr>
+            <td>💧 Humidity</td>
+            <td>{{ humidity }} %</td>
+        </tr>
+
+        <tr>
+            <td>🌡 Temperature</td>
+            <td>{{ temperature }} °C</td>
+        </tr>
+
+        <tr>
+            <td>🌱 Soil Moisture</td>
+            <td>{{ soil_moisture }} %</td>
+        </tr>
+
+        <tr>
+            <td>⛰ Elevation</td>
+            <td>{{ elevation }} m</td>
+        </tr>
+
+        <tr>
+            <td>☑ Drainage</td>
+            <td>{{ drainage }} %</td>
+        </tr>
+
+        <tr>
+            <td>🏙 Urbanization</td>
+            <td>{{ urbanization }} %</td>
+        </tr>
+
+        {% if confidence %}
+
+        <tr>
+            <td>🤖 AI Confidence</td>
+            <td>{{ confidence }} %</td>
+        </tr>
+
+        {% endif %}
+
+    </table>
+
+</div>
+<div class="recommendation">
+
+    <h3>🌊 Flood Risk Meter</h3>
+
+    <div class="meter">
+
+        <div class="meter-fill"
+     style="--risk-width: {{ risk_score }}%;">
+
+            {{ risk_score }}%
+
+        </div>
+
+    </div>
+
+</div>
+<a href="/" class="predict-btn">
+    🔄 Predict Again
+</a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

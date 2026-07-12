@@ -1,0 +1,85 @@
+# .gitignore for FloodPredictionProject
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Pyright / mypy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Model artifacts (ignore large binary model files)
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pt
+models/*.ckpt
+models/*.sav
+
+# Dataset files (uncomment if you prefer not to track raw data)
+# dataset/
+# dataset/*
+
+# Python packaging
+pip-wheel-metadata/
+
+# Temporary files
+*.tmp
+*.temp
+
+# OneDrive/temp files
+~$*
+
+# Editors
+*.swp
+*~
+
+# Mac
+.DS_Store
+
+# Windows thumbnails
+Thumbs.db
