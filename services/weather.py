@@ -14,12 +14,24 @@ def get_weather(lat, lon):
         f"?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
     )
 
-    response = requests.get(url, timeout=10)
+    try:
+        response = requests.get(url, timeout=10)
 
-        return None
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+
+        weather = {
+            "temperature": data["main"]["temp"],
+            "humidity": data["main"]["humidity"],
+            "rainfall": data.get("rain", {}).get("1h", 0),
+            "wind_speed": data["wind"]["speed"],
+            "city": data["name"],
+        }
+
+        return weather
 
     except Exception as e:
-
         print(f"Unexpected Error: {e}")
-
         return None
