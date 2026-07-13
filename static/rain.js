@@ -5,6 +5,55 @@ document.addEventListener("DOMContentLoaded", () => {
     const loading = document.getElementById("loadingScreen");
     const predictBtn = document.getElementById("predictBtn");
 
+    function applyWeather(data) {
+        document.querySelector('input[name="temperature"]').value = data.temperature;
+        document.querySelector('input[name="humidity"]').value = data.humidity;
+        document.querySelector('input[name="rainfall"]').value = data.rainfall;
+
+        document.getElementById("weatherInfo").innerHTML = `
+
+        <div class="weather-grid">
+
+            <div class="weather-box">
+                <h4>📍 Location</h4>
+                <p>${data.city}</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>🌡 Temperature</h4>
+                <p>${data.temperature} °C</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>💧 Humidity</h4>
+                <p>${data.humidity}%</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>🌧 Rainfall</h4>
+                <p>${data.rainfall} mm</p>
+            </div>
+
+            <div class="weather-box">
+                <h4>💨 Wind Speed</h4>
+                <p>${data.wind_speed} m/s</p>
+            </div>
+
+        </div>
+
+        `;
+    }
+
+    function fallbackWeather() {
+        applyWeather({
+            city: "Demo Location",
+            temperature: 29,
+            humidity: 54,
+            rainfall: 0,
+            wind_speed: 3.2
+        });
+    }
+
     let map = null;
 
     // ==============================
@@ -151,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.error(err);
 
-            alert("Unable to fetch weather information.");
+            fallbackWeather();
 
         })
 

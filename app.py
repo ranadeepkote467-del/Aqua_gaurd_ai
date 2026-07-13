@@ -1,13 +1,21 @@
 import os
+from io import BytesIO
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from flask_cors import CORS
+from dotenv import load_dotenv
 import joblib
 import numpy as np
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+load_dotenv()
 
 from services.weather import get_weather
 
 app = Flask(__name__)
+
+latest_report = None
 
 # Allow browser requests from deployed frontend (set CORS_ORIGINS on Render).
 cors_origins = os.getenv("CORS_ORIGINS", "*")
@@ -41,7 +49,10 @@ def weather():
         weather = get_weather(lat, lon)
 
         if weather is None:
-            return jsonify({"error": "Unable to fetch weather"}), 500
+            return jsonify({
+                "error": "Unable to fetch weather",
+                "hint": "Set OPENWEATHER_API_KEY in your environment or use the demo fallback in services/weather.py"
+            }), 500
 
         return jsonify(weather)
 
@@ -195,7 +206,13 @@ def predict():
 @app.route("/download-report")
 def download_report():
 
-    pdf = canvas.Canvas("Flood_Report.pdf", pagesize=A4)
+    global latest_report
+
+    if not latest_report:
+        return "<h2>No report available</h2><p>Generate a prediction first.</p>", 400
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
 
     y = 800
 
@@ -269,10 +286,13 @@ def download_report():
     pdf.drawText(text)
 
     pdf.save()
+    buffer.seek(0)
 
     return send_file(
-        "Flood_Report.pdf",
-        as_attachment=True
+        buffer,
+        as_attachment=True,
+        download_name="Flood_Report.pdf",
+        mimetype="application/pdf"
     )
 
 
