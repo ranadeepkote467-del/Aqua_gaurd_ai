@@ -1,14 +1,19 @@
+import os
+
 import requests
 
-API_KEY = "2f9441196b423625b2c692cb25f2a702"
+API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 
 def get_weather(lat, lon):
+    if not API_KEY:
+        return None
+
     url = (
         f"https://api.openweathermap.org/data/2.5/weather?"
         f"lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
     )
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
         return None

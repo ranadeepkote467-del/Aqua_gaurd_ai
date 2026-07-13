@@ -1,10 +1,17 @@
+import os
+
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import joblib
 import numpy as np
 
 from services.weather import get_weather
 
 app = Flask(__name__)
+
+# Allow browser requests from deployed frontend (set CORS_ORIGINS on Render).
+cors_origins = os.getenv("CORS_ORIGINS", "*")
+CORS(app, resources={r"/weather": {"origins": [o.strip() for o in cors_origins.split(",") if o.strip()]}})
 
 # Load trained model
 model = joblib.load("models/flood_model.pkl")
@@ -130,4 +137,8 @@ def predict():
 # Run Server
 # ==========================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5000)),
+        debug=os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    )
