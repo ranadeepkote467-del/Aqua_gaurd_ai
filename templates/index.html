@@ -362,7 +362,7 @@ Flood Risk Alerts
 
 </h1>
 
-<h2>
+<h2 id="loadingTitle">
 
 Analyzing Flood Risk...
 
@@ -370,11 +370,21 @@ Analyzing Flood Risk...
 
 <div class="loader"></div>
 
+<div id="loadingProgress">
+  <div id="loadingProgressBar"></div>
+</div>
+
 <p id="loadingText">
 
 Initializing AI Model...
 
 </p>
+
+<p id="loadingWarning"></p>
+
+<button id="loadingRetryBtn" onclick="window.location.reload()" style="display:none;">
+  🔄 Retry
+</button>
 
 </div>
 
@@ -603,7 +613,81 @@ function error(err){
 
 document.getElementById("predictBtn").addEventListener("click", function(){
 
+    const form = this.closest("form");
+
+    // Basic validation check before showing loader
+    const inputs = form.querySelectorAll("input[required]");
+    let valid = true;
+    inputs.forEach(i => { if (!i.value) valid = false; });
+    if (!valid) return;
+
     document.getElementById("loadingScreen").style.display = "flex";
+
+    // ── Cycling messages ──
+    const messages = [
+        "Initializing AI Model...",
+        "Reading environmental inputs...",
+        "Running XGBoost classifier...",
+        "Calculating flood probability...",
+        "Analyzing river levels...",
+        "Processing soil moisture data...",
+        "Evaluating drainage capacity...",
+        "Generating risk assessment...",
+        "Compiling your report...",
+        "Finalizing prediction..."
+    ];
+
+    const loadingText    = document.getElementById("loadingText");
+    const loadingWarning = document.getElementById("loadingWarning");
+    const retryBtn       = document.getElementById("loadingRetryBtn");
+    const progressBar    = document.getElementById("loadingProgressBar");
+
+    let idx = 0;
+    let elapsed = 0; // seconds
+    const TOTAL_EXPECTED = 40; // seconds before showing warning
+
+    // Cycle messages every 3 s
+    const msgInterval = setInterval(() => {
+        idx = (idx + 1) % messages.length;
+        loadingText.textContent = messages[idx];
+    }, 3000);
+
+    // Animate progress bar (fills up to 90 % over TOTAL_EXPECTED seconds)
+    const progressInterval = setInterval(() => {
+        elapsed++;
+        const pct = Math.min(90, (elapsed / TOTAL_EXPECTED) * 90);
+        progressBar.style.width = pct + "%";
+
+        // After 15 s — Render cold-start warning
+        if (elapsed === 15) {
+            loadingWarning.innerHTML =
+                "⚙️ <strong>Server is waking up on Render...</strong><br>" +
+                "Free-tier instances sleep after inactivity. This can take up to 60 seconds on first load. Please hold on!";
+            loadingWarning.style.color = "#fbbf24";
+        }
+
+        // After 45 s — show Retry button
+        if (elapsed === 45) {
+            loadingWarning.innerHTML =
+                "⏱️ <strong>This is taking longer than expected.</strong><br>" +
+                "The server might be overloaded. You can retry or wait a bit more.";
+            loadingWarning.style.color = "#f87171";
+            retryBtn.style.display = "inline-block";
+        }
+
+        // After 90 s — give up gracefully
+        if (elapsed >= 90) {
+            clearInterval(msgInterval);
+            clearInterval(progressInterval);
+            progressBar.style.width = "100%";
+            progressBar.style.background = "#ef4444";
+            loadingText.textContent = "Request timed out.";
+            loadingWarning.innerHTML =
+                "❌ <strong>The server did not respond in time.</strong><br>" +
+                "Please try again — Render may be experiencing high load.";
+            retryBtn.style.display = "inline-block";
+        }
+    }, 1000);
 
 });
 

@@ -43,6 +43,15 @@ def home():
 
 
 # =====================================
+# HEALTH CHECK (keep Render instance warm)
+# =====================================
+@app.route("/ping")
+@app.route("/health")
+def ping():
+    return jsonify({"status": "ok", "service": "AquaGuard AI"}), 200
+
+
+# =====================================
 # WEATHER API
 # =====================================
 @app.route("/weather", methods=["POST"])
