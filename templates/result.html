@@ -3,13 +3,15 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Prediction Result</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+<title>AquaGuard AI - Prediction Result</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
@@ -17,156 +19,483 @@
 
 <div class="main-container">
 
-    <div class="prediction-card">
+<div class="prediction-card">
 
-        <h1>🌊 AquaGuard AI</h1>
+<h1>
 
-        <h2>Flood Prediction Result</h2>
+🌊 AquaGuard AI
 
-        {% if "HIGH" in prediction %}
+</h1>
 
-        <div class="result-box danger">
+<h2>
 
-            ⚠ HIGH FLOOD RISK
+Flood Prediction Result
 
-        </div>
+</h2>
 
-        <div class="recommendation">
+{% if "HIGH" in prediction %}
 
-            <h3>Recommended Actions</h3>
+<div class="result-box danger">
 
-            <ul>
+⚠ HIGH FLOOD RISK
 
-                <li>🚨 Stay away from rivers and lakes.</li>
+</div>
 
-                <li>📢 Follow local government alerts.</li>
+<div class="recommendation">
 
-                <li>🎒 Prepare an emergency kit.</li>
+<h3>🚨 Recommended Actions</h3>
 
-                <li>🏠 Move to higher ground if necessary.</li>
+<ul>
 
-            </ul>
+<li>Stay away from rivers and lakes.</li>
 
-        </div>
+<li>Follow official flood alerts.</li>
 
-        {% else %}
+<li>Prepare an emergency kit.</li>
 
-        <div class="result-box safe">
+<li>Move to higher ground if necessary.</li>
 
-            ✅ NO FLOOD RISK
+</ul>
 
-        </div>
+</div>
 
-        <div class="recommendation">
+{% else %}
 
-            <h3>Current Situation</h3>
+<div class="result-box safe">
 
-            <ul>
+✅ NO FLOOD RISK
 
-                <li>🌤 Weather appears normal.</li>
+</div>
 
-                <li>💧 Continue monitoring rainfall.</li>
+<div class="recommendation">
 
-                <li>📊 System detects low flood probability.</li>
+<h3>✅ Current Situation</h3>
 
-            </ul>
+<ul>
 
-        </div>
+<li>Weather conditions are stable.</li>
 
-        {% endif %}
+<li>Continue monitoring rainfall.</li>
+
+<li>No immediate flood threat detected.</li>
+
+</ul>
+
+</div>
+
+{% endif %}
 
 {% if confidence %}
 
 <div class="recommendation">
 
-    <h3>🤖 AI Confidence</h3>
+<h3>🤖 AI Confidence</h3>
 
-    <h2>{{ confidence }}%</h2>
+<div class="confidence-bar">
+
+<div
+    class="confidence-fill"
+    id="confidenceFill"
+    data-confidence="{{ confidence }}">
+
+    {{ confidence }}%
+
+</div>
+
+</div>
 
 </div>
 
 {% endif %}
-<div class="recommendation">
 
-    <h3>📊 Prediction Summary</h3>
+<div class="ai-card">
 
-    <table class="summary-table">
+<h2>
 
-        <tr>
-            <td>🌧 Rainfall</td>
-            <td>{{ rainfall }} mm</td>
-        </tr>
+🤖 AquaGuard AI Analysis
 
-        <tr>
-            <td>🌊 River Level</td>
-            <td>{{ river_level }} m</td>
-        </tr>
+</h2>
 
-        <tr>
-            <td>💧 Humidity</td>
-            <td>{{ humidity }} %</td>
-        </tr>
+<div class="date-time-card">
 
-        <tr>
-            <td>🌡 Temperature</td>
-            <td>{{ temperature }} °C</td>
-        </tr>
+<h3>
 
-        <tr>
-            <td>🌱 Soil Moisture</td>
-            <td>{{ soil_moisture }} %</td>
-        </tr>
+📅 Report Generated
 
-        <tr>
-            <td>⛰ Elevation</td>
-            <td>{{ elevation }} m</td>
-        </tr>
+</h3>
 
-        <tr>
-            <td>☑ Drainage</td>
-            <td>{{ drainage }} %</td>
-        </tr>
+<p id="currentDate"></p>
 
-        <tr>
-            <td>🏙 Urbanization</td>
-            <td>{{ urbanization }} %</td>
-        </tr>
-
-        {% if confidence %}
-
-        <tr>
-            <td>🤖 AI Confidence</td>
-            <td>{{ confidence }} %</td>
-        </tr>
-
-        {% endif %}
-
-    </table>
+<p id="currentTime"></p>
 
 </div>
-<div class="recommendation">
 
-    <h3>🌊 Flood Risk Meter</h3>
+<h3>
 
-    <div class="meter">
+{{ ai_title }}
 
-        <div class="meter-fill"
-     style="--risk-width: {{ risk_score }}%;">
+</h3>
 
-            {{ risk_score }}%
+<p>
 
-        </div>
+{{ ai_message }}
 
-    </div>
+</p>
 
 </div>
-<a href="/" class="predict-btn">
-    🔄 Predict Again
+
+<div class="recommendation">
+
+<h3>
+
+📊 Prediction Summary
+
+</h3>
+
+<table class="summary-table">
+
+<tr>
+
+<td>🌧 Rainfall</td>
+
+<td>{{ rainfall }} mm</td>
+
+</tr>
+
+<tr>
+
+<td>🌊 River Level</td>
+
+<td>{{ river_level }} m</td>
+
+</tr>
+
+<tr>
+
+<td>💧 Humidity</td>
+
+<td>{{ humidity }} %</td>
+
+</tr>
+
+<tr>
+
+<td>🌡 Temperature</td>
+
+<td>{{ temperature }} °C</td>
+
+</tr>
+
+<tr>
+
+<td>🌱 Soil Moisture</td>
+
+<td>{{ soil_moisture }} %</td>
+
+</tr>
+
+<tr>
+
+<td>⛰ Elevation</td>
+
+<td>{{ elevation }} m</td>
+
+</tr>
+
+<tr>
+
+<td>☑ Drainage</td>
+
+<td>{{ drainage }} %</td>
+
+</tr>
+
+<tr>
+
+<td>🏙 Urbanization</td>
+
+<td>{{ urbanization }} %</td>
+
+</tr>
+
+{% if confidence %}
+
+<tr>
+
+<td>🤖 AI Confidence</td>
+
+<td>{{ confidence }} %</td>
+
+</tr>
+
+{% endif %}
+
+</table>
+
+</div>
+<!-- ======================================
+     AI FLOOD RISK GAUGE
+======================================= -->
+
+<div class="recommendation">
+
+<h3>
+
+🤖 AI Flood Risk Meter
+
+</h3>
+
+<div class="gauge">
+
+<div class="gauge-circle">
+
+<svg
+width="220"
+height="220"
+viewBox="0 0 220 220">
+
+<!-- Background -->
+
+<circle
+
+cx="110"
+
+cy="110"
+
+r="90"
+
+fill="none"
+
+stroke="#d9d9d9"
+
+stroke-width="14"/>
+
+<!-- Progress -->
+
+<circle
+
+id="progressCircle"
+
+cx="110"
+
+cy="110"
+
+r="90"
+
+fill="none"
+
+stroke="#22c55e"
+
+stroke-width="14"
+
+stroke-linecap="round"
+
+transform="rotate(-90 110 110)"/>
+
+</svg>
+
+<div class="gauge-text">
+
+<h1 id="riskPercentage">
+
+{{ risk_score }}%
+
+</h1>
+
+<p>
+
+{{ prediction }}
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================
+     ACTION BUTTONS
+======================================= -->
+
+<div class="button-group">
+
+<a
+href="/download-report"
+class="predict-btn">
+
+📄 Download AI Report
+
 </a>
 
-    </div>
+<a
+href="/"
+class="predict-btn">
+
+🔄 Predict Again
+
+</a>
 
 </div>
+
+<!-- ======================================
+     FOOTER
+======================================= -->
+
+<footer class="footer">
+
+<h3>
+
+🌊 AquaGuard AI
+
+</h3>
+
+<p>
+
+Intelligent Flood Prediction &
+Early Warning System
+
+</p>
+
+<p>
+
+Powered by
+
+<strong>
+
+Flask • Machine Learning •
+XGBoost • OpenWeather API •
+OpenStreetMap
+
+</strong>
+
+</p>
+
+<p>
+
+© 2026 AquaGuard AI
+
+</p>
+
+</footer>
+
+</div>
+
+</div>
+<script>
+
+// ======================================
+// LIVE DATE & TIME
+// ======================================
+
+function updateDateTime() {
+
+    const now = new Date();
+
+    const dateOptions = {
+
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+
+    };
+
+    const timeOptions = {
+
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+
+    };
+
+    document.getElementById("currentDate").innerHTML =
+        now.toLocaleDateString("en-IN", dateOptions);
+
+    document.getElementById("currentTime").innerHTML =
+        now.toLocaleTimeString("en-IN", timeOptions);
+
+}
+
+updateDateTime();
+
+setInterval(updateDateTime,1000);
+
+
+// ======================================
+// AI RISK GAUGE
+// ======================================
+
+document.addEventListener("DOMContentLoaded",function(){
+
+    const score = Number("{{ risk_score|default(0) }}");
+
+    const circle = document.getElementById("progressCircle");
+
+    if(!circle) return;
+
+    const radius = 90;
+
+    const circumference = 2 * Math.PI * radius;
+
+    circle.style.strokeDasharray = circumference;
+
+    circle.style.strokeDashoffset = circumference;
+
+    circle.style.transition =
+        "stroke-dashoffset 2s ease, stroke 1s ease";
+
+    setTimeout(function(){
+
+        const offset =
+            circumference -
+            (score / 100) * circumference;
+
+        circle.style.strokeDashoffset = offset;
+
+        if(score <= 30){
+
+            circle.style.stroke = "#22c55e";
+
+        }
+
+        else if(score <= 70){
+
+            circle.style.stroke = "#f59e0b";
+
+        }
+
+        else{
+
+            circle.style.stroke = "#ef4444";
+
+        }
+
+    },300);
+
+});
+
+
+// ======================================
+// LOADING SCREEN
+// ======================================
+
+window.addEventListener("load",function(){
+
+    const loading =
+        document.getElementById("loadingScreen");
+
+    if(loading){
+
+        loading.style.display="none";py
+
+    }
+
+});
+
+</script>
 
 </body>
 

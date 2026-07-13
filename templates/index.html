@@ -2,89 +2,149 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AquaGuard AI</title>
+<meta charset="UTF-8">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>AquaGuard AI</title>
+
 <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+href="{{ url_for('static', filename='style.css') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
 </head>
 
 <body>
 
-    <!-- Rain -->
-    <div class="rain"></div>
+<!-- Rain Animation -->
 
-    <!-- Main Container -->
+<div class="rain"></div>
 
-    <div class="main-container">
+<!-- Main Container -->
 
-        <!-- ================= HERO ================= -->
+<div class="main-container">
 
-        <section class="hero">
+<!-- ================================= -->
 
-            <h1>
-                🌊 AquaGuard AI
-            </h1>
+<!-- HERO -->
 
-            <h2>
+<!-- ================================= -->
 
-                Intelligent Flood Prediction &
-                Early Warning System
+<section class="hero">
 
-            </h2>
+<h1>
 
-            <p>
+🌊 AquaGuard AI
 
-                Machine Learning • XGBoost • Flask
+</h1>
 
-            </p>
+<h2>
 
-        </section>
+Intelligent Flood Prediction &
+Early Warning System
 
-        <!-- ================= CARD ================= -->
+</h2>
 
-        <section class="prediction-card">
+<p>
 
-            <h3>
+Machine Learning • XGBoost • Flask
 
-                Flood Risk Prediction
+</p>
 
-            </h3>
-<div class="weather-card">
+<div class="hero-tags">
 
-    <button type="button" id="locationBtn">
-        📍 Get Current Weather
-    </button>
+<span>📍 Live GPS</span>
 
-    <div id="weatherInfo"></div>
+<span>🌦 Live Weather</span>
+
+<span>🤖 AI Powered</span>
 
 </div>
+
+</section>
+
+<!-- ================================= -->
+
+<!-- PREDICTION CARD -->
+
+<!-- ================================= -->
+
+<section class="prediction-card">
+
+<h2>
+
+🌊 Flood Risk Prediction
+
+</h2>
+
+<!-- Weather Card -->
+
+<div class="weather-card">
+
+<button
+type="button"
+id="locationBtn"
+class="predict-btn">
+
+📍 Get Current Weather
+
+</button>
+
+<div id="weatherInfo">
+
+<p>
+
+Click the button to fetch
+your current weather.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- Map -->
 
 <div class="map-container">
 
-    <h2>🗺 Current Location</h2>
+<h3>
 
-    <div id="map"></div>
+🗺 Your Current Location
+
+</h3>
+
+<div id="map"></div>
 
 </div>
-    <form action="/predict" method="POST">
-               <div class="form-grid">
 
-                    <div class="input-group">
+<!-- Prediction Form -->
 
-                        <label>🌧 Rainfall (mm)</label>
+<form
+action="/predict"
+method="POST">
 
-                        <input
+<div class="form-grid">
+    <!-- ================= INPUTS ================= -->
+
+<div class="input-group">
+
+<label>🌧 Rainfall (mm)</label>
+
+<input
 type="number"
 name="rainfall"
 placeholder="0 - 400 mm"
@@ -93,13 +153,13 @@ max="400"
 step="0.1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>🌊 River Level (m)</label>
+<label>🌊 River Level (m)</label>
 
-                      <input
+<input
 type="number"
 name="river_level"
 placeholder="0 - 10 m"
@@ -108,13 +168,13 @@ max="10"
 step="0.1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>💧 Humidity (%)</label>
+<label>💧 Humidity (%)</label>
 
-                        <input
+<input
 type="number"
 name="humidity"
 placeholder="0 - 100 %"
@@ -123,28 +183,28 @@ max="100"
 step="0.1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>🌡 Temperature (°C)</label>
+<label>🌡 Temperature (°C)</label>
 
-                        <input
+<input
 type="number"
 name="temperature"
 placeholder="10 - 40 °C"
-min="10"
-max="40"
+min="-10"
+max="60"
 step="0.1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>🌱 Soil Moisture (%)</label>
+<label>🌱 Soil Moisture (%)</label>
 
-                        <input
+<input
 type="number"
 name="soil_moisture"
 placeholder="0 - 100 %"
@@ -153,13 +213,13 @@ max="100"
 step="0.1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>⛰ Elevation (m)</label>
+<label>⛰ Elevation (m)</label>
 
-                        <input
+<input
 type="number"
 name="elevation"
 placeholder="0 - 1000 m"
@@ -168,131 +228,206 @@ max="1000"
 step="1"
 required>
 
-                    </div>
+</div>
 
-                    <div class="input-group">
+<div class="input-group">
 
-                        <label>☑️ Drainage Capacity (%)</label>
-
-<input
-    type="number"
-    name="drainage"
-    placeholder="0 - 100"
-    min="0"
-    max="100"
-    required>
-
-                    </div>
-
-                    <div class="input-group">
-
-                        <label>🏙️ Urbanization (%)</label>
+<label>☑ Drainage Capacity (%)</label>
 
 <input
-    type="number"
-    name="urbanization"
-    placeholder="0 - 100"
-    min="0"
-    max="100"
-    required>
+type="number"
+name="drainage"
+placeholder="0 - 100 %"
+min="0"
+max="100"
+required>
 
-                    </div>
+</div>
 
-                </div>
+<div class="input-group">
 
-                <button class="predict-btn">
+<label>🏙 Urbanization (%)</label>
 
-                    🔵 Predict Flood Risk
+<input
+type="number"
+name="urbanization"
+placeholder="0 - 100 %"
+min="0"
+max="100"
+required>
 
-                </button>
+</div>
 
-            </form>
+</div>
 
-        </section>
+<button
+class="predict-btn"
+id="predictBtn">
 
-        <!-- ================= FEATURES ================= -->
+🤖 Predict Flood Risk
 
-        <section class="features">
+</button>
 
-            <div class="feature">
+</form>
 
-                🛡️
+</section>
 
-                <h4>AI Powered</h4>
+<!-- ================================= -->
 
-                <p>Machine Learning Prediction</p>
+<!-- FEATURES -->
 
-            </div>
+<!-- ================================= -->
 
-            <div class="feature">
+<section class="features">
 
-                🎯
+<div class="feature">
 
-                <h4>High Accuracy</h4>
+🛡️
 
-                <p>XGBoost Model</p>
+<h4>AI Powered</h4>
 
-            </div>
+<p>
 
-            <div class="feature">
+Machine Learning Prediction
 
-                ⚡
+</p>
 
-                <h4>Real-Time</h4>
+</div>
 
-                <p>Instant Prediction</p>
+<div class="feature">
 
-            </div>
+🎯
 
-            <div class="feature">
+<h4>High Accuracy</h4>
 
-                🚨
+<p>
 
-                <h4>Early Warning</h4>
+XGBoost Classification Model
 
-                <p>Flood Risk Alerts</p>
+</p>
 
-            </div>
+</div>
 
-        </section>
+<div class="feature">
 
-    </div>
+⚡
 
-    <!-- Ocean -->
+<h4>Real-Time Weather</h4>
 
-    <div class="ocean">
+<p>
 
-        <div class="wave wave1"></div>
+Live Weather API & GPS
 
-        <div class="wave wave2"></div>
+</p>
 
-    </div>
+</div>
+
+<div class="feature">
+
+🚨
+
+<h4>Early Warning</h4>
+
+<p>
+
+Flood Risk Alerts
+
+</p>
+
+</div>
+
+</section>
+
+</div>
+
+<!-- Ocean Animation -->
+
+<div class="ocean">
+
+<div class="wave wave1"></div>
+
+<div class="wave wave2"></div>
+
+</div>
+
+<!-- Loading Screen -->
+
+<div id="loadingScreen">
+
+<div class="loader-card">
+
+<h1>
+
+🤖 AquaGuard AI
+
+</h1>
+
+<h2>
+
+Analyzing Flood Risk...
+
+</h2>
+
+<div class="loader"></div>
+
+<p id="loadingText">
+
+Initializing AI Model...
+
+</p>
+
+</div>
+
+</div>
+
+<!-- Leaflet JS -->
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
 
 let map = null;
 
-document.getElementById("locationBtn").addEventListener("click", function () {
+document.addEventListener("DOMContentLoaded", function () {
+
+    const locationBtn = document.getElementById("locationBtn");
+
+    locationBtn.addEventListener("click", getLocation);
+
+});
+
+function getLocation() {
+
+    const btn = document.getElementById("locationBtn");
+
+    btn.disabled = true;
+    btn.innerHTML = "🌦 Fetching Weather...";
 
     if (!navigator.geolocation) {
-        alert("Geolocation is not supported.");
+
+        alert("Geolocation is not supported by your browser.");
+
+        btn.disabled = false;
+        btn.innerHTML = "📍 Get Current Weather";
+
         return;
+
     }
 
     navigator.geolocation.getCurrentPosition(success, error);
 
-});
+}
 
-function success(position){
+function success(position) {
 
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
 
     // Remove previous map
-    if(map){
+
+    if (map) {
+
         map.remove();
+
     }
 
     map = L.map("map").setView([lat, lon], 13);
@@ -304,21 +439,44 @@ function success(position){
         }
     ).addTo(map);
 
-    L.circleMarker([lat, lon],{
-        radius:8,
-        color:"red",
-        fillColor:"red",
-        fillOpacity:1
+    // Blue Marker
+
+    const blueIcon = L.icon({
+
+        iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+
+        shadowUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+
+        iconSize: [25,41],
+
+        iconAnchor: [12,41],
+
+        popupAnchor: [1,-34]
+
+    });
+
+    L.marker([lat, lon], {
+
+        icon: blueIcon
+
     })
+
     .addTo(map)
-    .bindPopup("📍 You are here")
+
+    .bindPopup("📍 Your Current Location")
+
     .openPopup();
 
-    setTimeout(()=>{
+    setTimeout(() => {
+
         map.invalidateSize();
+
     },300);
 
-    // Fetch weather
+    // Fetch Weather
+
     fetch("/weather",{
 
         method:"POST",
@@ -328,64 +486,103 @@ function success(position){
         },
 
         body:JSON.stringify({
+
             lat:lat,
             lon:lon
+
         })
 
     })
 
-    .then(response=>response.json())
+    .then(response => response.json())
 
-    .then(weather=>{
+    .then(weather => {
 
-        // Weather card
-        document.getElementById("weatherInfo").innerHTML=`
+        document.getElementById("locationBtn").disabled = false;
+
+        document.getElementById("locationBtn").innerHTML =
+        "📍 Get Current Weather";
+
+        // Round Values
+
+        const temp = Math.round(weather.temperature);
+
+        const humidity = Math.round(weather.humidity);
+
+        const rainfall = Math.round(weather.rainfall);
+
+        const wind = Number(weather.wind_speed).toFixed(1);
+
+        // Weather Cards
+
+        document.getElementById("weatherInfo").innerHTML = `
 
         <div class="weather-grid">
 
             <div class="weather-box">
+
                 <h4>📍 City</h4>
+
                 <p>${weather.city}</p>
+
             </div>
 
             <div class="weather-box">
+
                 <h4>🌡 Temperature</h4>
-                <p>${weather.temperature} °C</p>
+
+                <p>${temp} °C</p>
+
             </div>
 
             <div class="weather-box">
+
                 <h4>💧 Humidity</h4>
-                <p>${weather.humidity}%</p>
+
+                <p>${humidity}%</p>
+
             </div>
 
             <div class="weather-box">
+
                 <h4>🌧 Rainfall</h4>
-                <p>${weather.rainfall} mm</p>
+
+                <p>${rainfall} mm</p>
+
             </div>
 
             <div class="weather-box">
+
                 <h4>💨 Wind Speed</h4>
-                <p>${weather.wind_speed} m/s</p>
+
+                <p>${wind} m/s</p>
+
             </div>
 
         </div>
 
         `;
 
-        // Autofill
-        document.querySelector('input[name="temperature"]').value=weather.temperature;
+        // Auto Fill
 
-        document.querySelector('input[name="humidity"]').value=weather.humidity;
+        document.querySelector('input[name="temperature"]').value = temp;
 
-        document.querySelector('input[name="rainfall"]').value=weather.rainfall;
+        document.querySelector('input[name="humidity"]').value = humidity;
+
+        document.querySelector('input[name="rainfall"]').value = rainfall;
 
     })
 
-    .catch(err=>{
+    .catch(err => {
 
         console.log(err);
 
         alert("Unable to fetch weather.");
+
+        document.getElementById("locationBtn").disabled = false;
+
+        document.getElementById("locationBtn").innerHTML =
+        "📍 Get Current Weather";
 
     });
 
@@ -395,8 +592,25 @@ function error(err){
 
     alert(err.message);
 
+    document.getElementById("locationBtn").disabled = false;
+
+    document.getElementById("locationBtn").innerHTML =
+    "📍 Get Current Weather";
+
 }
 
+// Loading Screen
+
+document.getElementById("predictBtn").addEventListener("click", function(){
+
+    document.getElementById("loadingScreen").style.display = "flex";
+
+});
+
 </script>
+
+<script src="{{ url_for('static', filename='rain.js') }}"></script>
+
 </body>
+
 </html>
