@@ -23,11 +23,13 @@ def _demo_weather(lat, lon):
         "rainfall": rainfall,
         "wind_speed": wind_speed,
         "city": "Demo Location",
+        "demo": True,
     }
 
 
 def get_weather(lat, lon):
     if not API_KEY:
+        print("No API key found, using demo weather data.")
         return _demo_weather(lat, lon)
 
     url = (
@@ -39,7 +41,11 @@ def get_weather(lat, lon):
         response = requests.get(url, timeout=10)
 
         if response.status_code != 200:
-            print(f"OpenWeather request failed with status {response.status_code}")
+            print(
+                f"OpenWeather request failed: HTTP {response.status_code} – "
+                f"{response.text[:200]}"
+            )
+            print("Falling back to demo weather data.")
             return _demo_weather(lat, lon)
 
         data = response.json()
@@ -50,10 +56,12 @@ def get_weather(lat, lon):
             "rainfall": data.get("rain", {}).get("1h", 0),
             "wind_speed": data["wind"]["speed"],
             "city": data["name"],
+            "demo": False,
         }
 
         return weather
 
     except Exception as e:
-        print(f"Unexpected Error: {e}")
-        return _demo_weather(lat, lon)
+        print(f"Unexpected weather fetch error: {e}")
+        print("Falling back to demo weather data.")
+        return _demo_weather(lat, lon)

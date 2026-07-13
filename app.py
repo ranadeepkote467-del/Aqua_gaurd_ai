@@ -1,7 +1,11 @@
 import os
+import re
 from io import BytesIO
 
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import (
+    Flask, render_template, request, jsonify,
+    send_file, session, redirect, url_for, make_response
+)
 from flask_cors import CORS
 from dotenv import load_dotenv
 import joblib
@@ -15,11 +19,16 @@ from services.weather import get_weather
 
 app = Flask(__name__)
 
-latest_report = None
+# Secret key for session cookies (change this in production)
+app.secret_key = os.getenv("SECRET_KEY", "aquaguard-ai-secret-2026")
 
-# Allow browser requests from deployed frontend (set CORS_ORIGINS on Render).
+# Allow browser requests (restrict via CORS_ORIGINS env var, comma-separated).
 cors_origins = os.getenv("CORS_ORIGINS", "*")
-CORS(app, resources={r"/weather": {"origins": [o.strip() for o in cors_origins.split(",") if o.strip()]}})
+if cors_origins.strip() == "*":
+    CORS(app)  # Allow all origins
+else:
+    origin_list = [o.strip() for o in cors_origins.split(",") if o.strip()]
+    CORS(app, resources={r"/*": {"origins": origin_list}})
 
 # Load trained model
 model = joblib.load("models/flood_model.pkl")
@@ -41,20 +50,18 @@ def weather():
 
     try:
 
-        data = request.get_json()
+        data = request.get_json(force=True)
+
+        if not data or "lat" not in data or "lon" not in data:
+            return jsonify({"error": "Missing lat/lon in request body"}), 400
 
         lat = data["lat"]
         lon = data["lon"]
 
-        weather = get_weather(lat, lon)
+        weather_data = get_weather(lat, lon)
 
-        if weather is None:
-            return jsonify({
-                "error": "Unable to fetch weather",
-                "hint": "Set OPENWEATHER_API_KEY in your environment or use the demo fallback in services/weather.py"
-            }), 500
-
-        return jsonify(weather)
+        # get_weather always returns a dict (never None) – demo fallback is built in
+        return jsonify(weather_data)
 
     except Exception as e:
 
@@ -68,8 +75,6 @@ def weather():
 # =====================================
 @app.route("/predict", methods=["POST"])
 def predict():
-
-    global latest_report
 
     try:
 
@@ -144,8 +149,8 @@ def predict():
         except Exception:
             confidence = None
 
-        # Save latest report
-        latest_report = {
+        # Save latest report in session (persists across server restarts)
+        session["latest_report"] = {
 
             "prediction": result,
             "confidence": confidence,
@@ -165,6 +170,8 @@ def predict():
             "ai_message": ai_message
 
         }
+        # Explicitly mark session as modified so Flask sends the Set-Cookie header
+        session.modified = True
 
         return render_template(
 
@@ -203,97 +210,110 @@ def predict():
 # =====================================
 # DOWNLOAD PDF REPORT
 # =====================================
+
+
+def _safe(text):
+    """Strip characters outside Latin-1 range so ReportLab Helvetica won't crash."""
+    if text is None:
+        return "N/A"
+    return re.sub(r'[^\x00-\xff]', '', str(text)).strip()
+
+
 @app.route("/download-report")
 def download_report():
 
-    global latest_report
+    report = session.get("latest_report")
 
-    if not latest_report:
-        return "<h2>No report available</h2><p>Generate a prediction first.</p>", 400
+    if not report:
+        # No prediction yet — send user back to home with a message
+        return redirect(url_for("home") + "?msg=no_report")
 
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=A4)
+    try:
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=A4)
 
-    y = 800
+        y = 800
 
-    pdf.setFont("Helvetica-Bold", 20)
-    pdf.drawString(170, y, "AquaGuard AI")
+        pdf.setFont("Helvetica-Bold", 20)
+        pdf.drawString(170, y, "AquaGuard AI")
 
-    y -= 35
+        y -= 35
 
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(150, y, "Flood Prediction Report")
+        pdf.setFont("Helvetica-Bold", 16)
+        pdf.drawString(130, y, "Flood Prediction Report")
 
-    y -= 45
+        y -= 45
 
-    pdf.setFont("Helvetica", 12)
+        pdf.setFont("Helvetica", 12)
 
-    pdf.drawString(50, y, f"Prediction : {latest_report['prediction']}")
-    y -= 25
+        pdf.drawString(50, y, f"Prediction : {_safe(report['prediction'])}")
+        y -= 25
 
-    pdf.drawString(50, y, f"Confidence : {latest_report['confidence']} %")
-    y -= 25
+        pdf.drawString(50, y, f"Confidence : {report['confidence']} %")
+        y -= 25
 
-    pdf.drawString(50, y, f"Flood Risk : {latest_report['risk_score']} %")
+        pdf.drawString(50, y, f"Flood Risk  : {report['risk_score']} %")
 
-    y -= 40
+        y -= 40
 
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawString(50, y, "Weather Information")
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(50, y, "Environmental Inputs")
 
-    y -= 25
+        y -= 25
 
-    pdf.setFont("Helvetica", 12)
+        pdf.setFont("Helvetica", 12)
 
-    pdf.drawString(60, y, f"Temperature : {latest_report['temperature']} °C")
-    y -= 20
+        pdf.drawString(60, y, f"Temperature     : {report['temperature']} deg C")
+        y -= 20
 
-    pdf.drawString(60, y, f"Humidity : {latest_report['humidity']} %")
-    y -= 20
+        pdf.drawString(60, y, f"Humidity        : {report['humidity']} %")
+        y -= 20
 
-    pdf.drawString(60, y, f"Rainfall : {latest_report['rainfall']} mm")
-    y -= 20
+        pdf.drawString(60, y, f"Rainfall        : {report['rainfall']} mm")
+        y -= 20
 
-    pdf.drawString(60, y, f"River Level : {latest_report['river_level']} m")
-    y -= 20
+        pdf.drawString(60, y, f"River Level     : {report['river_level']} m")
+        y -= 20
 
-    pdf.drawString(60, y, f"Soil Moisture : {latest_report['soil_moisture']} %")
-    y -= 20
+        pdf.drawString(60, y, f"Soil Moisture   : {report['soil_moisture']} %")
+        y -= 20
 
-    pdf.drawString(60, y, f"Elevation : {latest_report['elevation']} m")
-    y -= 20
+        pdf.drawString(60, y, f"Elevation       : {report['elevation']} m")
+        y -= 20
 
-    pdf.drawString(60, y, f"Drainage Capacity : {latest_report['drainage']} %")
-    y -= 20
+        pdf.drawString(60, y, f"Drainage Capacity: {report['drainage']} %")
+        y -= 20
 
-    pdf.drawString(60, y, f"Urbanization : {latest_report['urbanization']} %")
+        pdf.drawString(60, y, f"Urbanization    : {report['urbanization']} %")
 
-    y -= 40
+        y -= 40
 
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawString(50, y, "AI Analysis")
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(50, y, "AI Analysis")
 
-    y -= 25
+        y -= 25
 
-    pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(60, y, latest_report["ai_title"])
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(60, y, _safe(report["ai_title"]))
 
-    y -= 25
+        y -= 25
 
-    text = pdf.beginText(60, y)
-    text.setFont("Helvetica", 11)
-    text.textLines(latest_report["ai_message"])
-    pdf.drawText(text)
+        text = pdf.beginText(60, y)
+        text.setFont("Helvetica", 11)
+        text.textLines(_safe(report["ai_message"]))
+        pdf.drawText(text)
 
-    pdf.save()
-    buffer.seek(0)
+        pdf.save()
+        pdf_bytes = buffer.getvalue()
 
-    return send_file(
-        buffer,
-        as_attachment=True,
-        download_name="Flood_Report.pdf",
-        mimetype="application/pdf"
-    )
+        response = make_response(pdf_bytes)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'attachment; filename="Flood_Report.pdf"'
+        response.headers["Content-Length"] = str(len(pdf_bytes))
+        return response
+
+    except Exception as e:
+        return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
 
 
 # =====================================
